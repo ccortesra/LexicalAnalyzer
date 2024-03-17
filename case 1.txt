@@ -1,0 +1,7 @@
+// Este caso evalua palabras reservadas básicas
+
+escribir verdadero
+
+cierto falso mientras rango
+
+sino si hasta repetir caso
