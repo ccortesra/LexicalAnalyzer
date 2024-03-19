@@ -54,16 +54,22 @@ class LexicalAnalyzer:
     self.real_exp = r'[0-9]*.[0-9]*'
     self.variable_exp = r'[a-zA-Z_][0-9a-zA-Z_]*'
 # ------------------------------------------------------------------------------------------
-  def find_reserved_words(self, line,i, j):
+  def find_reserved_words(self, line, i, j):
     for exp in self.reserved_words:
-      coincidencia = re.match(f'\b{exp}\b(?![\w_])', line[j:])
-      if coincidencia:
-        inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
-        texto_coincidente = coincidencia.group()  # Obtener el texto que coincide
-        print(f'<{texto_coincidente},{i+1},{j+inicio+1}>')
-        j += coincidencia.end()
-        return j
+        # Compilar la expresión regular para incluir los límites de palabra
+        pattern = re.compile(f'\\b{exp}\\b')
+        # Buscar la coincidencia desde el índice actual 'j'
+        coincidencia = pattern.search(line, pos=j)
+        if coincidencia:
+            inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
+            # Verificar si el inicio coincide con el índice actual 'j'
+            if inicio == j:
+                texto_coincidente = coincidencia.group()  # Obtener el texto que coincide
+                print(f'<{texto_coincidente},{i+1},{j+inicio+1}>')
+                j += coincidencia.end() - coincidencia.start()
+                return j
     return j
+
       
   def find_operators(self,line,i,j):
     for op, exp in self.operators:
@@ -107,7 +113,6 @@ class LexicalAnalyzer:
             j+= 1
             continue
           j = self.find_reserved_words(line,i,j)
-          print(line[j])
 
           # Números
           if re.match('\d', line[j]):
@@ -116,12 +121,12 @@ class LexicalAnalyzer:
             texto_coincidente = coincidencia.group()  # Obtener el texto que coincide
             print(f'<tkn_real,{texto_coincidente},{i+1},{j+inicio+1}>')
             j += coincidencia.end() - 1
-          print(line[j])
+
           # Operadores
           j = self.find_operators(line,i,j)
-          print(line[j])
+
           j = self.find_identifiers(line,i,j)
-          print(line[j])
+
 
         except:
           continue
@@ -130,18 +135,13 @@ if __name__ == '__main__':
   #input_text = open('./case 1.txt','r')
 #   input_line = """hola()                              #
 # escribir(nombreFuncion(4.56,53.98))"""
-  input_line = """// Este caso de prueba evalúa que las palabras
-## reservadas se impriman de manera correcta.
+  input_line = """// Este caso evalua palabras reservadas básicas
 
-escribira verdadero en falso
+escribir verdadero
 
-   hasta
-         leer una_variable_x
+cierto falso mientras rango
 
-
-
-para
-      procesarla :)"""
+sino si hasta repetir caso"""
   #input_line = input()
   input_line = input_line.split('\n')
   lexical_analyzer = LexicalAnalyzer(input_line)
