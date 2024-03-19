@@ -52,11 +52,11 @@ class LexicalAnalyzer:
     ("tkn_not", "!")
 ]
     self.real_exp = r'[0-9]*.[0-9]*'
-    self.variable_exp = r'^[a-zA-Z0-9-_]+$'
+    self.variable_exp = r'[a-zA-Z_][0-9a-zA-Z_]*'
 # ------------------------------------------------------------------------------------------
   def find_reserved_words(self, line,i, j):
     for exp in self.reserved_words:
-      coincidencia = re.match(exp, line[j:])
+      coincidencia = re.match(f'\b{exp}\b(?![\w_])', line[j:])
       if coincidencia:
         inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
         texto_coincidente = coincidencia.group()  # Obtener el texto que coincide
@@ -133,7 +133,7 @@ if __name__ == '__main__':
   input_line = """// Este caso de prueba evalúa que las palabras
 ## reservadas se impriman de manera correcta.
 
-escribir verdadero en falso
+escribira verdadero en falso
 
    hasta
          leer una_variable_x
