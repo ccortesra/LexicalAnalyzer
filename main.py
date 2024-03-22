@@ -3,8 +3,51 @@ import re
 class LexicalAnalyzer:
   def __init__(self,text_lines):
     self.text_lines = text_lines
-    self.reserved_words = ['fun', 'escribir', 'poner','caso','verdadero', 'desde', 'falso','mientras','rango','sino','si','hasta','repetir', 'cierto', 'falso', 'imprimir', 'leer', 'retornar', 'funcion', 'en', 'para','fin', 'retorno']
+    self.reserved_words = ['imprimir',
+      'continuar',
+      'repetir',
+      'fun',
+      'desde',
+      'mientras',
+      'verdadero',
+      'funcion',
+      'osi',
+      'retornar',
+      'fin',
+      'ret',
+      'nulo',
+      'romper',
+      'global',
+      'si',
+      'falso',
+      'error',
+      'incluir',
+      'escribir',
+      'sino',
+      'retorno',
+      'leer',
+      'ir',
+      'imprimirf',
+      'hasta',
+      'elegir',
+      'poner',
+      'en',
+      'para',
+      'caso',
+      'otro',
+      'rango',
+      'defecto',
+      'cierto',
+      'tipo',
+      'acadena',
+      'alogico',
+      'anumero',
+      'limpiar',
+      'formato']
+    
+
     self.operators = [
+    ("tkn_str", r'\"((.*)?)\"|\'((.*)?)\'|\"\"|\'\''),
     ("tkn_and", "&&"),
     ("tkn_or", "\\|\\|"),
     ("tkn_concat", "\\.\\."),
@@ -75,7 +118,10 @@ class LexicalAnalyzer:
       coincidencia = re.match(exp, line[j:])
       if coincidencia:
         inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
-        print(f'<{op},{i+1},{j+inicio+1}>')
+        if op == 'tkn_str':
+          print(f'<{op},{coincidencia.group()},{i+1},{j+inicio+1}>')
+        else:
+          print(f'<{op},{i+1},{j+inicio+1}>')
         j += coincidencia.end()
         return j 
     return j
@@ -126,7 +172,7 @@ class LexicalAnalyzer:
       while j < len(line):
         # Palabras reservadas
         try:
-          if line[j:].startswith('*/'):  # Ignorar comentarios
+          if line[j:].startswith('*/') and multi_comment:  # Ignorar comentarios
             multi_comment = False
             j+=2  
             continue
@@ -147,19 +193,22 @@ class LexicalAnalyzer:
             j+= 1
             continue
 
-          elif line[j] == '"' or line[j] == "'":
-            starting_j = j
-            j = self.find_tkn_string(line,i,j+1)
-            if j == starting_j:
-              print(f'>>> Error lexico (linea: {i+1}, posicion: {j+1})')
-              return
+        
 
           else:
             starting_j = j
             j = self.find_reserved_words(line,i,j)
+            if j != starting_j:
+              continue
             j = self.find_numbers(line,i,j)
+            if j != starting_j:
+              continue
             j = self.find_operators(line,i,j)
+            if j != starting_j:
+              continue
             j = self.find_identifiers(line,i,j)
+            if j != starting_j:
+              continue
             if starting_j == j:
               print(f'>>> Error lexico (linea: {i+1}, posicion: {j+1})')
               return
@@ -169,16 +218,16 @@ class LexicalAnalyzer:
 
 
 if __name__ == '__main__':
-  input_line = """para i en rango(10)
-poner(i .. '\n')
-fin
-"""
+  input_line = """'X es \'menor\''"""
   #input_line = input()
   input_line = input_line.split('\n')
   lexical_analyzer = LexicalAnalyzer(input_line)
   lexical_analyzer.find_tokens()
 
 
+
+
+ 
 # if __name__ == '__main__':
 #   #input_text = open('./case 1.txt','r')
 #   #input_line = input_text.readlines()
@@ -192,3 +241,4 @@ fin
 #   print(source_code)
 #   lexical_analyzer = LexicalAnalyzer(source_code)
 #   lexical_analyzer.find_tokens()
+# 'X es \'menor\''
