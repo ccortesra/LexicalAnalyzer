@@ -44,10 +44,8 @@ class LexicalAnalyzer:
       'anumero',
       'limpiar',
       'formato']
-    
-
     self.operators = [
-    ("tkn_str", r'\"((.*)?)\"|\'((.*)?)\'|\"\"|\'\''),
+    ('tkn_str', r'"([^"\\]|\\.)*"|\'([^\'\\]|\\.)*\''),
     ("tkn_and", "&&"),
     ("tkn_or", "\\|\\|"),
     ("tkn_concat", "\\.\\."),
@@ -119,7 +117,8 @@ class LexicalAnalyzer:
       if coincidencia:
         inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
         if op == 'tkn_str':
-          print(f'<{op},{coincidencia.group()},{i+1},{j+inicio+1}>')
+          texto_coincidente = coincidencia.group()
+          print(f'<{op},{texto_coincidente[1:len(texto_coincidente)-1]},{i+1},{j+inicio+1}>')
         else:
           print(f'<{op},{i+1},{j+inicio+1}>')
         j += coincidencia.end()
@@ -136,19 +135,6 @@ class LexicalAnalyzer:
       return j
     return j
   
-  def find_tkn_string(self,line,i,j):
-    if line[j-1] == '"':
-      coincidencia = re.match(r'.*?(?=")', line[j:])
-    else:
-      coincidencia = re.match(r".*?(?=')", line[j:])
-    if coincidencia:
-      inicio = coincidencia.start()  # Obtener la posición de inicio de la coincidencia
-      texto_coincidente = coincidencia.group()  # Obtener el texto que coincide
-      print(f'<tkn_str,{texto_coincidente},{i+1},{j+inicio}>')
-      j += coincidencia.end()
-      return j+1
-    else:
-      return j-1
 
   
   # ----------------------------------------------------------------
@@ -193,7 +179,6 @@ class LexicalAnalyzer:
             j+= 1
             continue
 
-        
 
           else:
             starting_j = j
@@ -213,12 +198,14 @@ class LexicalAnalyzer:
               print(f'>>> Error lexico (linea: {i+1}, posicion: {j+1})')
               return
 
-        except:
-          continue
 
+        except Exception as e:
+          print(e)
 
 if __name__ == '__main__':
-  input_line = """'X es \'menor\''"""
+  #input_line = """("HaBía una Vez") 'U''n''a fea' ['C'"ala"'b''a'"za"]{'C'"ala"'b''a'"za"}"""
+  input_line = """ print("Hola Latino")
+  """
   #input_line = input()
   input_line = input_line.split('\n')
   lexical_analyzer = LexicalAnalyzer(input_line)
